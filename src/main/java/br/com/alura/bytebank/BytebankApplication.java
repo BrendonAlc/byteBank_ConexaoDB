@@ -5,6 +5,8 @@ import br.com.alura.bytebank.domain.cliente.DadosCadastroCliente;
 import br.com.alura.bytebank.domain.conta.ContaService;
 import br.com.alura.bytebank.domain.conta.DadosAberturaConta;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class BytebankApplication {
@@ -12,9 +14,9 @@ public class BytebankApplication {
     private static ContaService service = new ContaService();
     private static Scanner teclado = new Scanner(System.in).useDelimiter("\n");
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         var opcao = exibirMenu();
-        while (opcao != 7) {
+        while (opcao != 8) {
             try {
                 switch (opcao) {
                     case 1:
@@ -35,6 +37,9 @@ public class BytebankApplication {
                     case 6:
                         realizarDeposito();
                         break;
+                    case 7:
+                    	realizarTranferencia();
+                    	break;
                 }
             } catch (RegraDeNegocioException e) {
                 System.out.println("Erro: " +e.getMessage());
@@ -47,7 +52,25 @@ public class BytebankApplication {
         System.out.println("Finalizando a aplicação.");
     }
 
-    private static int exibirMenu() {
+    private static void realizarTranferencia() throws Exception {
+    	System.out.println("Digite o número da conta de origem:");
+        var numeroDaContaOrigem = teclado.nextInt();
+
+        System.out.println("Digite o número da conta de Destino:");
+        var numeroDaContaDestino = teclado.nextInt();
+        
+        System.out.println("Digite o valor a ser tranferido:");
+        var valor = teclado.nextBigDecimal();
+        
+        service.realizarTranferencia(numeroDaContaOrigem, numeroDaContaDestino, valor);
+        
+        System.out.println("Tranferência realizada com sucesso!");
+        System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
+        teclado.next();
+		
+	}
+
+	private static int exibirMenu() {
         System.out.println("""
                 BYTEBANK - ESCOLHA UMA OPÇÃO:
                 1 - Listar contas abertas
@@ -56,7 +79,8 @@ public class BytebankApplication {
                 4 - Consultar saldo de uma conta
                 5 - Realizar saque em uma conta
                 6 - Realizar depósito em uma conta
-                7 - Sair
+                7 - Realizar transferência em uma conta
+                8 - Sair
                 """);
         return teclado.nextInt();
     }
@@ -111,7 +135,7 @@ public class BytebankApplication {
         teclado.next();
     }
 
-    private static void realizarSaque() {
+    private static void realizarSaque() throws Exception {
         System.out.println("Digite o número da conta:");
         var numeroDaConta = teclado.nextInt();
 
@@ -124,7 +148,7 @@ public class BytebankApplication {
         teclado.next();
     }
 
-    private static void realizarDeposito() {
+    private static void realizarDeposito() throws SQLException {
         System.out.println("Digite o número da conta:");
         var numeroDaConta = teclado.nextInt();
 
